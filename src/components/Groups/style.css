@@ -1,0 +1,11 @@
+.groups-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.groups-list__undefined {
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+}
