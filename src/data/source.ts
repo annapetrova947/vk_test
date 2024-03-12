@@ -29,7 +29,7 @@ export class JsonGroupsMockSource implements JsonGroupsSourceInterface {
             result: 1,
           });
         } else {
-          reject("Something bad happened");
+          reject("Сервер не доступен");
         }
       }, 1000),
     );

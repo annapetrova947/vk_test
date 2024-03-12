@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Filters, Group } from "./types";
+import { Filters, Group, Option } from "./types";
 import { Groups } from "./components/Groups/Groups.tsx";
 import { JsonGroupsMockSource } from "./data/source.ts";
 import { Filter } from "./components/Filter/Filter.tsx";
+import { Error } from "./components/Error/Error.tsx";
 import Preloader from "./components/Preloader/Preloader.tsx";
 
 export default function App() {
@@ -63,17 +64,42 @@ export default function App() {
 
   if (isLoading) return <Preloader />;
   else if (error !== "" || groupsResponse == undefined) {
-    return <p>{error}</p>;
-  } else
+    return <Error error={error}/>
+
+    
+  } else {
+     // Создаем объект из доступный цветов для выбора
+    let colorSet: Set<string | undefined> = new Set(groupsResponse
+      .map(function (item) {
+        return item['avatar_color'];
+      }))
+      
+    colorSet.delete(undefined)
+    const colorsOptions: Array<Option>  = [...colorSet].reduce(
+        (acc, item) => {
+          acc.push({ label: String(item), value: String(item) });
+          return acc;
+        },
+        [{ label: "все", value: "null" }],
+      )
+
+    const closedOptions: Array<Option> = [
+      { label: "все", value: "null" },
+      { label: "Открытая", value: "false" },
+      { label: "Закрытая", value: "true" }
+    ]
+
+    const friensOptions: Array<Option> = [
+      { label: "Все группы", value: "null" },
+      { label: "Только где состоят друзья", value: "true" },
+
+    ]
+  
     return (
       <>
         <Filter
           label="Приватность"
-          options={[
-            { label: "все", value: "null" },
-            { label: "Открытая", value: "false" },
-            { label: "Закрытая", value: "true" }
-          ]}
+          options={closedOptions}
           filterBy="closed"
           onChange={handleFilter}
         />
@@ -81,34 +107,20 @@ export default function App() {
         <Filter
           label="Цвет"
           options={
-            // Создаем объект из доступный цветов для выбора
-            groupsResponse!
-            .map(function (item) {
-              if (item['avatar_color'] !== undefined) return item['avatar_color'];
-            })
-            .filter((color) => color !== undefined)
-            .reduce(
-              (acc, item) => {
-                acc.push({ label: String(item), value: String(item) });
-                return acc;
-              },
-              [{ label: "все", value: "null" }],
-            )}
+            colorsOptions
+            }
           filterBy="avatar_color"
           onChange={handleFilter}
         />
 
         <Filter
           label="Друзья"
-          options={[
-            { label: "Все группы", value: "null" },
-            { label: "Только где состоят друзья", value: "true" },
- 
-          ]}
+          options={friensOptions}
           filterBy="friends"
           onChange={handleFilter}
         />
         <Groups groups={currentGroups} />
       </>
     );
+        }
 }
